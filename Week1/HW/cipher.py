@@ -29,7 +29,7 @@ encodedList = list(encoded_phrase)
 for i in range (len(encodedList)):
 	ascii_code_ori = ord(encodedList[i])
 	
-	if ( (97 <= ascii_code_ori <= 122 ) and (65 <= ascii_code_ori <= 90 ) ):
+	if ( (97 <= ascii_code_ori <= 122 ) or (65 <= ascii_code_ori <= 90 ) ):
 		ascii_code = ascii_code_ori + c
 	else:
 		ascii_code = ascii_code_ori
