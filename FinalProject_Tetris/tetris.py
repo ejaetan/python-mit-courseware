@@ -477,7 +477,7 @@ class Tetris():
     BOARD_HEIGHT = 20
     
     def __init__(self, win):
-        self.scoreboard = Scoreboard(win, self.BOARD_WIDTH, self.BOARD_HEIGHT/4)
+        self.scoreboard = Scoreboard(win, self.BOARD_WIDTH, self.BOARD_HEIGHT/5)
         self.board = Board(win, self.BOARD_WIDTH, self.BOARD_HEIGHT)
         self.win = win
         self.delay = 1000 #ms
@@ -508,8 +508,7 @@ class Tetris():
         '''
         
         #YOUR CODE HERE
-        #rand_shape = self.SHAPES[random.randint(0, len(self.SHAPES) - 1)]
-        rand_shape = self.SHAPES[3]
+        rand_shape = self.SHAPES[random.randint(0, len(self.SHAPES) - 1)]
         return rand_shape(Point(int(self.BOARD_WIDTH/2), 0))
     
     def animate_shape(self):
@@ -546,12 +545,12 @@ class Tetris():
             self.board.add_shape(self.current_shape)
             removed_rows = self.board.remove_complete_rows()
             
-            if removed_rows == 2:
-                self.scoreboard.total_tetris += 2
-                self.scoreboard.score += removed_rows * 10
+            if removed_rows == 4:
+                self.scoreboard.total_tetris += 1
+                self.scoreboard.score += removed_rows * 5
                 self.scoreboard.update_score()
             elif removed_rows > 0:
-                self.scoreboard.score += removed_rows
+                self.scoreboard.score += removed_rows * 2
                 self.scoreboard.update_score()
             self.level_up()
             self.current_shape = self.create_new_shape()
