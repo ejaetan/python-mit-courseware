@@ -1,5 +1,6 @@
 from graphics import *
 import random
+import time
 
 ############################################################
 # BLOCK CLASS
@@ -422,10 +423,19 @@ class Board():
         '''
         
         #YOUR CODE HERE
-        for y in range(self.height - 1, -1, -1):
+ 
+        count = 0
+        y = self.height - 1
+        while y >= 0:
             if self.is_row_complete(y):
+                count += 1
                 self.delete_row(y)
-                self.move_down_rows(y - 1)
+                self.move_down_rows(y-1)
+            else:
+                y -= 1
+        return count
+
+
 
     def game_over(self):
         ''' display "Game Over !!!" message in the center of the board
@@ -433,7 +443,15 @@ class Board():
         '''
         
         #YOUR CODE HERE
-        pass        
+        message = Text(Point(self.width / 2 * Block.BLOCK_SIZE, self.height / 2 * Block.BLOCK_SIZE),
+                       "Game Over!!!")
+        message.setSize(30)
+        message.setFill('white')
+        message.setStyle('bold')
+        message.draw(self.canvas)
+
+
+
 
 
 ############################################################
@@ -459,6 +477,7 @@ class Tetris():
     BOARD_HEIGHT = 20
     
     def __init__(self, win):
+        self.scoreboard = Scoreboard(win, self.BOARD_WIDTH, self.BOARD_HEIGHT/4)
         self.board = Board(win, self.BOARD_WIDTH, self.BOARD_HEIGHT)
         self.win = win
         self.delay = 1000 #ms
@@ -474,6 +493,8 @@ class Tetris():
         # draw_shape method in the Board class)
         ####  YOUR CODE HERE ####
         self.board.draw_shape(self.current_shape)
+        
+        #self.scoreboard.update_score()
         # For Step 9:  animate the shape!
         ####  YOUR CODE HERE ####
         self.animate_shape()
@@ -487,7 +508,8 @@ class Tetris():
         '''
         
         #YOUR CODE HERE
-        rand_shape = self.SHAPES[random.randint(0, len(self.SHAPES) - 1)]
+        #rand_shape = self.SHAPES[random.randint(0, len(self.SHAPES) - 1)]
+        rand_shape = self.SHAPES[3]
         return rand_shape(Point(int(self.BOARD_WIDTH/2), 0))
     
     def animate_shape(self):
@@ -522,11 +544,38 @@ class Tetris():
             return True
         elif direction == 'Down':
             self.board.add_shape(self.current_shape)
-            self.board.remove_complete_rows()
+            removed_rows = self.board.remove_complete_rows()
+            
+            if removed_rows == 2:
+                self.scoreboard.total_tetris += 2
+                self.scoreboard.score += removed_rows * 10
+                self.scoreboard.update_score()
+            elif removed_rows > 0:
+                self.scoreboard.score += removed_rows
+                self.scoreboard.update_score()
+            self.level_up()
             self.current_shape = self.create_new_shape()
-            self.board.draw_shape(self.current_shape)
+            if not self.board.draw_shape(self.current_shape):
+                self.board.game_over()
+            return False
         return False
     
+    def level_up(self):
+        if self.scoreboard.score >= 100:
+            self.scoreboard.level = 5
+            self.delay = 600
+        elif self.scoreboard.score  >= 70:
+            self.scoreboard.level = 4
+            self.delay = 700
+        elif self.scoreboard.score  >= 50:
+            self.scoreboard.level = 3
+            self.delay = 800
+        elif self.scoreboard.score  >= 40:
+            self.scoreboard.level = 2
+            self.delay = 900
+        self.scoreboard.update_score()
+
+
     
     def do_rotate(self):
         ''' Checks if the current_shape can be rotated and
@@ -563,7 +612,64 @@ class Tetris():
             self.do_move(key)
         elif key == 'Up':
             self.do_rotate()
-       
+
+
+############################################################
+# SCOREBOARD CLASS
+############################################################
+class Scoreboard():
+    ''' Score class: it represents the score that player gets
+        
+        Attributes: width - type:int - width of the board in squares
+        height - type:int - height of the board in squares
+        canvas - type:CanvasFrame - where the pieces will be drawn
+        score  - type: int - score that player gets
+        '''
+    def __init__(self, win, width, height):
+        self.width = width
+        self.height = height
+        self.score = 0
+        self.total_tetris = 0
+        self.level = 1
+        # create a canvas to draw the tetris shapes on
+        self.canvas = CanvasFrame(win, self.width * Block.BLOCK_SIZE,
+                                  self.height * Block.BLOCK_SIZE)
+        self.canvas.setBackground('light gray')
+        self.message1 = Text(Point(self.width / 2 * Block.BLOCK_SIZE, self.height / 4
+                             * Block.BLOCK_SIZE),"Score: "  + str(self.score)
+                             + "   Tetris: " + str(self.total_tetris))
+        self.message2 = Text(Point(self.width / 2 * Block.BLOCK_SIZE,
+                                   self.height / 2 * Block.BLOCK_SIZE),
+                            "Level: " + str(self.level))
+        self.set_font_style(self.message1)
+        self.set_font_style(self.message2)
+    
+        
+    
+    def update_score(self):
+        self.message1.undraw()
+        self.message2.undraw()
+        self.message1 = Text(Point(self.width / 2 * Block.BLOCK_SIZE, self.height / 4
+                                  * Block.BLOCK_SIZE),"Score: "  + str(self.score)
+                            + "   Tetris: " + str(self.total_tetris))
+        self.message2 = Text(Point(self.width / 2 * Block.BLOCK_SIZE,
+                             self.height / 2 * Block.BLOCK_SIZE),
+                             "Level: " + str(self.level))
+        self.set_font_style(self.message1)
+        self.set_font_style(self.message2)
+
+    def set_font_style(self, obj):
+        obj.setSize(30)
+        obj.setFill('white')
+        obj.setStyle('bold')
+        obj.draw(self.canvas)
+
+
+
+
+
+
+
 ################################################################
 # Start the game
 ################################################################
