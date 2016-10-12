@@ -1,6 +1,6 @@
 # MIT OCW A Gentle Introduction to Programming Using Python
 
-This course teaches me how to plan and organize programs, as well as the syntax and grammar of the Python language. 
+This course teaches me how to plan and organize programs, and improve my knowledge in the syntax and grammar of the Python language. 
 
 Game Projects: The hangman, Game of life, Tetris
 
